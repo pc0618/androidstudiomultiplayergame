@@ -43,7 +43,8 @@ public class TargetVisitChecker {
                                            final int range) {
         for (int i = 0; i < path.length; i++) {
             if (path[i] == -1) {
-                if (LatLngUtils.distance(currentLatitude, currentLongitude, latitudes[i], longitudes[i]) <= range) {
+                if (LatLngUtils.distance(currentLatitude, currentLongitude, latitudes[i], longitudes[i])
+                        <= (double) range) {
                     return i;
                 }
             }
@@ -93,6 +94,12 @@ public class TargetVisitChecker {
      * @return the index in the path array that was updated, or -1 if the path array was full
      */
     public static int visitTarget(final int[] path, final int targetIndex) {
+        for (int i = 0; i < path.length; i++) {
+            if (path[i] == -1) {
+                path[i] = targetIndex;
+                return i;
+            }
+        }
         return -1;
     }
 
