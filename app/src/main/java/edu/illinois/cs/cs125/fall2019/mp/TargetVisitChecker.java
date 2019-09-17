@@ -42,7 +42,13 @@ public class TargetVisitChecker {
                                            final double currentLatitude, final double currentLongitude,
                                            final int range) {
         for (int i = 0; i < path.length; i++) {
-            if (path[i] == -1) {
+            boolean b = true;
+            for (int j = 0; j < path.length; j++) {
+                if (path[j] == i) {
+                    b = false;
+                }
+            }
+            if (b == true) {
                 if (LatLngUtils.distance(currentLatitude, currentLongitude, latitudes[i], longitudes[i])
                         <= (double) range) {
                     return i;
