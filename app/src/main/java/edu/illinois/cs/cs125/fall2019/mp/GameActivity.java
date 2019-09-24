@@ -193,27 +193,26 @@ public final class GameActivity extends AppCompatActivity {
      */
     @VisibleForTesting // Actually just visible for documentation - not called directly by test suites
     public void updateLocation(final double latitude, final double longitude) {
+        boolean snake = false;
+        boolean visitedTarget = false;
         int closestIndex = TargetVisitChecker.getTargetWithinRange(targetLats, targetLngs, path, latitude,
                 longitude, PROXIMITY_THRESHOLD);
         int visitedCounter = 0;
-        for (int i = 0; i < path.length; i++) {
-            if (path[i] != -1) {
-                visitedCounter++;
-            }
+        int i = 0;
+        while (path[i] != -1) {
+            visitedCounter++;
+            i++;
         }
-
-        boolean snake = false;
-        boolean visitedTarget = false;
 
         if (closestIndex != -1) {
             visitedTarget = true;
         }
 
-        if (TargetVisitChecker.checkSnakeRule(targetLats, targetLngs, path, closestIndex)) {
+        if (TargetVisitChecker.checkSnakeRule(targetLats, targetLngs, path, closestIndex) == true) {
             snake = true;
         }
 
-        if (visitedTarget && snake) {
+        if (visitedTarget == true && snake == true) {
             int newClosest = TargetVisitChecker.visitTarget(path, closestIndex);
             changeMarkerColor(targetLats[closestIndex], targetLngs[closestIndex], CAPTURED_MARKER_HUE);
 
