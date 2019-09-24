@@ -176,6 +176,10 @@ public final class GameActivity extends AppCompatActivity {
         map.getUiSettings().setIndoorLevelPickerEnabled(false);
         map.getUiSettings().setMapToolbarEnabled(false);
 
+        for (int i = 0; i < targetLats.length; i++) {
+            placeMarker(targetLats[i], targetLngs[i]);
+        }
+
         // Use the provided placeMarker function to add a marker at every target's location
         // HINT: onCreate initializes the relevant arrays (targetLats, targetLngs, path) for you
     }
@@ -189,6 +193,36 @@ public final class GameActivity extends AppCompatActivity {
      */
     @VisibleForTesting // Actually just visible for documentation - not called directly by test suites
     public void updateLocation(final double latitude, final double longitude) {
+        int closestIndex = TargetVisitChecker.getTargetWithinRange(targetLats, targetLngs, path, latitude,
+                longitude, PROXIMITY_THRESHOLD);
+        int visitedCounter = 0;
+        for (int i = 0; i < path.length; i++) {
+            if (path[i] != -1) {
+                visitedCounter++;
+            }
+        }
+
+        boolean snake = false;
+        boolean visitedTarget = false;
+
+        if (closestIndex != -1) {
+            visitedTarget = true;
+        }
+
+        if (TargetVisitChecker.checkSnakeRule(targetLats, targetLngs, path, closestIndex)) {
+            snake = true;
+        }
+
+        if (visitedTarget && snake) {
+            int newClosest = TargetVisitChecker.visitTarget(path, closestIndex);
+            changeMarkerColor(targetLats[closestIndex], targetLngs[closestIndex], CAPTURED_MARKER_HUE);
+
+            if (visitedCounter > 0) {
+                addLine(targetLats[path[visitedCounter - 1]], targetLngs[path[visitedCounter - 1]],
+                        targetLats[path[newClosest]], targetLngs[path[newClosest]], Color.GREEN);
+
+            }
+        }
         // This function is responsible for updating the game state and map according to the user's movements
 
         // HINT: To operate on the game state, use the three methods you implemented in TargetVisitChecker
