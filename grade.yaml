@@ -5,4 +5,4 @@
 checkpoint: 1
 
 # Whether to use our provided libraries for the previous checkpoint(s):
-useProvided: false
+useProvided: true

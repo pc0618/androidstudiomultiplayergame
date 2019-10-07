@@ -50,8 +50,8 @@ public class AreaDivider {
      * @param setWest West Longitude
      * @param setCellSize specified length of the cell
      */
-    public AreaDivider(final double setNorth, final double setSouth,
-                       final double setEast, final double setWest,
+    public AreaDivider(final double setNorth, final double setEast,
+                       final double setSouth, final double setWest,
                        final double setCellSize) {
         this.north = setNorth;
         this.south = setSouth;
