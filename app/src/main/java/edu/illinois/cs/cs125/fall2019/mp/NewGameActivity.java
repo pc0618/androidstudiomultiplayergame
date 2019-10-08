@@ -5,7 +5,9 @@ import android.graphics.Point;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -65,7 +67,23 @@ public final class NewGameActivity extends AppCompatActivity {
          * after is the statement to run. Here we don't care about the argument, but it must
          * be there for the signature to match.
          */
+        //createGame.setOnClickListener(unused -> createGameClicked());
+        LinearLayout targetSettings = findViewById(R.id.gameModeGroup);
+        LinearLayout areaSettings = findViewById(R.id.gameModeGroup);
+        areaSettings.setVisibility(View.GONE);
+        targetSettings.setVisibility(View.GONE);
         createGame.setOnClickListener(unused -> createGameClicked());
+        RadioGroup radio = findViewById(R.id.gameModeGroup);
+        radio.setOnCheckedChangeListener((unused, checkedId) -> {
+            //radio.setVisibility(View.VISIBLE);
+            // checkedId is the R.id constant of the currently checked RadioButton
+            // Your code here: make only the selected mode's settings group visible
+            if (checkedId == targetSettings) {
+                targetSettings.setVisibility(View.VISIBLE);
+            } else if (checkedId == areaSettings) {
+                areaSettings.setVisibility(View.VISIBLE);
+            }
+        });
         /*
          * It's also possible to make lambdas for functions that take zero or multiple parameters.
          * In those cases, the parameter list needs to be wrapped in parentheses, like () for a
@@ -75,6 +93,15 @@ public final class NewGameActivity extends AppCompatActivity {
          * lambdas for functions with a non-void return type need return statements, again like
          * normal functions.
          */
+
+
+            // checkedId is the R.id constant of the currently checked RadioButton
+            // Your code here: make only the selected mode's settings group visible
+
+
+
+
+
     }
 
     /**

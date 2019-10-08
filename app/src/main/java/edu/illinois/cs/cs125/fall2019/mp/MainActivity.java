@@ -4,6 +4,7 @@ import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.widget.Button;
 
 import com.google.gson.JsonObject;
 
@@ -20,15 +21,17 @@ public final class MainActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         // This "super" call is required for all activities
         super.onCreate(savedInstanceState);
+
+
         // Create the UI from a layout resource
         setContentView(R.layout.activity_main);
-
+        Button createGame = findViewById(R.id.createGame);
+        createGame.setOnClickListener(unused -> startActivity(new Intent(this, NewGameActivity.class)));
         // This activity doesn't do anything yet - it immediately launches the game activity
         // Work on it will start in Checkpoint 1
 
         // Intents are Android's way of specifying what to do/launch
         // Here we create an Intent for launching GameActivity and act on it with startActivity
-        startActivity(new Intent(this, GameActivity.class));
         // End this activity so that it's removed from the history
         // Otherwise pressing the back button in the game would come back to a blank screen here
         finish();
