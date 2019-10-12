@@ -16,7 +16,8 @@
             android:id="@+id/targetSettings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <EditText
                 android:id="@+id/proximityThreshold"
@@ -30,7 +31,8 @@
             android:id="@+id/areaSettings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <fragment
                 android:id="@+id/areaSizeMap"
@@ -53,18 +55,20 @@
             android:orientation="horizontal">
 
             <RadioButton
-                android:id="@+id/targetModeOptions"
+                android:id="@+id/targetModeOption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="RadioButton" />
+                android:text="RadioButton"
+                tools:visibility="gone" />
 
             <RadioButton
                 android:id="@+id/areaModeOption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="RadioButton" />
+                android:text="RadioButton"
+                android:visibility="gone" />
         </RadioGroup>
 
         <Button
