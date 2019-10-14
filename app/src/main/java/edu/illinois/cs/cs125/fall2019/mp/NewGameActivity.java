@@ -145,17 +145,17 @@ public final class NewGameActivity extends AppCompatActivity {
         RadioGroup radio = findViewById(R.id.gameModeGroup);
         EditText proximityThreshold = findViewById(R.id.proximityThreshold);
         EditText cellSize = findViewById(R.id.cellSize);
-        if (radio.getCheckedRadioButtonId() != -1 && Integer.parseInt(cellSize.getText().toString())
+        /*if (radio.getCheckedRadioButtonId() != -1 && Integer.parseInt(cellSize.getText().toString())
                 != 0 && Integer.parseInt(proximityThreshold.getText().toString()) != 0) {
             //startActivity(intent);
-        }
+        }*/
         String gameMode = intent.getStringExtra("mode");
-        if (gameMode.equals("target")) {
+        if (radio.getChildAt(0).getId() == R.id.targetModeOption) {
             //EditText proximityThreshold = findViewById(R.id.proximityThreshold);
             String text = proximityThreshold.getText().toString();
             int threshold = Integer.parseInt(text);
             intent.putExtra("proximityThreshold", threshold);
-        } else if (gameMode.equals("area")) {
+        } else if (radio.getChildAt(1).getId() == R.id.areaModeOption) {
             //EditText cellSize = findViewById(R.id.cellSize);
             String text = cellSize.getText().toString();
             int size = Integer.parseInt(text);
