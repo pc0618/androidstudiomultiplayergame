@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 //import android.widget.RadioButton;
@@ -141,6 +142,32 @@ public final class NewGameActivity extends AppCompatActivity {
     private void createGameClicked() {
         // Set up an Intent that will launch GameActivity
         Intent intent = new Intent(this, GameActivity.class);
+        RadioGroup radio = findViewById(R.id.gameModeGroup);
+        EditText proximityThreshold = findViewById(R.id.proximityThreshold);
+        EditText cellSize = findViewById(R.id.cellSize);
+        if (radio.getCheckedRadioButtonId() != -1 && Integer.parseInt(cellSize.getText().toString())
+                != 0 && Integer.parseInt(proximityThreshold.getText().toString()) != 0) {
+            //startActivity(intent);
+        }
+        String gameMode = intent.getStringExtra("mode");
+        if (gameMode.equals("target")) {
+            //EditText proximityThreshold = findViewById(R.id.proximityThreshold);
+            String text = proximityThreshold.getText().toString();
+            int threshold = Integer.parseInt(text);
+            intent.putExtra("proximityThreshold", threshold);
+        } else if (gameMode.equals("area")) {
+            //EditText cellSize = findViewById(R.id.cellSize);
+            String text = cellSize.getText().toString();
+            int size = Integer.parseInt(text);
+            intent.putExtra("cellSize", size);
+            LatLngBounds bounds = areaMap.getProjection().getVisibleRegion().latLngBounds;
+            intent.putExtra("areaNorth", bounds.northeast.longitude);
+            intent.putExtra("areaEast", bounds.northeast.latitude);
+            intent.putExtra("areaSouth", bounds.southwest.longitude);
+            intent.putExtra("areaWest", bounds.southwest.latitude);
+        }
+        //finish();
+
 
         // Complete this function so that it populates the Intent with the user's settings (using putExtra)
         // If the user has set all necessary settings, launch the GameActivity and finish this activity
