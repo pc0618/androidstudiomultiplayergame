@@ -1,11 +1,19 @@
 package edu.illinois.cs.cs125.fall2019.mp;
 
-import android.content.Intent;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+//import android.view.View;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 /**
@@ -26,7 +34,11 @@ public final class MainActivity extends AppCompatActivity {
         // Create the UI from a layout resource
         setContentView(R.layout.activity_main);
         Button createGame = findViewById(R.id.createGame);
-        createGame.setOnClickListener(unused -> startActivity(new Intent(this, NewGameActivity.class)));
+        //createGame.setOnClickListener(unused -> startActivity(new Intent(this,
+               //NewGameActivity.class)));
+
+
+
         // This activity doesn't do anything yet - it immediately launches the game activity
         // Work on it will start in Checkpoint 1
 
@@ -34,7 +46,8 @@ public final class MainActivity extends AppCompatActivity {
         // Here we create an Intent for launching GameActivity and act on it with startActivity
         // End this activity so that it's removed from the history
         // Otherwise pressing the back button in the game would come back to a blank screen here
-        finish();
+        //finish();
+        connect();
     }
 
     // The functions below are stubs that will be filled out in Checkpoint 2
@@ -46,6 +59,17 @@ public final class MainActivity extends AppCompatActivity {
         // Make any "loading" UI adjustments you like
         // Use WebApi.startRequest to fetch the games lists
         // In the response callback, call setUpUi with the received data
+        WebApi.startRequest(this, WebApi.API_BASE + "/games", response -> {
+            // Code in this handler will run when the request completes successfully
+            // Do something with the response?
+            if (response != null) {
+                setUpUi(response);
+            }
+        }, error -> {
+            // Code in this handler will run if the request fails
+            // Maybe notify the user of the error?
+                Toast.makeText(this, "Oh no!", Toast.LENGTH_LONG).show();
+            });
     }
 
     /**
@@ -56,6 +80,87 @@ public final class MainActivity extends AppCompatActivity {
         // Hide any optional "loading" UI you added
         // Clear the games lists
         // Add UI chunks to the lists based on the result data
+
+        LinearLayout invitationGroup = findViewById(R.id.invitationsGroup);
+        invitationGroup.setVisibility(View.GONE);
+        LinearLayout parent = findViewById(R.id.invitationsList);
+
+        LinearLayout ongoingGroup = findViewById(R.id.ongoingGamesGroup);
+        ongoingGroup.setVisibility(View.GONE);
+        LinearLayout ongoingList = findViewById(R.id.ongoingGamesList);
+
+
+        JsonArray games = result.get("games").getAsJsonArray();
+        for (JsonElement gameelement: games) {
+            JsonArray players = gameelement.getAsJsonObject().get("players").getAsJsonArray();
+
+            for (JsonElement playerelement: players) {
+                JsonObject newPlayer = playerelement.getAsJsonObject();
+
+
+                String gameId = gameelement.getAsJsonObject().get("id").getAsString();
+                String owner = gameelement.getAsJsonObject().get("owner").getAsString();
+                int state = gameelement.getAsJsonObject().get("state").getAsInt();
+                String mode = gameelement.getAsJsonObject().get("mode").getAsString();
+
+                String email = newPlayer.get("email").getAsString();
+                int team = newPlayer.get("team").getAsInt();
+                String teamId = null;
+                if (team == TeamID.OBSERVER) {
+                    teamId = "Observer";
+                } else if (team == TeamID.TEAM_RED) {
+                    teamId = "Red";
+                } else if (team == TeamID.TEAM_GREEN) {
+                    teamId = "Green";
+                } else if (team == TeamID.TEAM_YELLOW) {
+                    teamId = "Yellow";
+                } else if (team == TeamID.TEAM_BLUE) {
+                    teamId = "Blue";
+                }
+                int currentState = newPlayer.get("state").getAsInt();
+
+                if (newPlayer.get("email").getAsString().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())
+                    && state != GameStateID.ENDED) {
+                    if (currentState == PlayerStateID.INVITED) {
+                        invitationGroup.setVisibility(View.VISIBLE);
+
+                        View invitationsChunk = getLayoutInflater().inflate(R.layout.chunk_invitations, parent, false);
+                        TextView emailLabel = invitationsChunk.findViewById(R.id.invitationEmails);
+                        emailLabel.setText("Created by " + owner);
+
+                        TextView detailLabel = invitationsChunk.findViewById(R.id.invitationDetails);
+                        detailLabel.setText(teamId + ", " + mode + " mode");
+
+                        parent.addView(invitationsChunk);
+
+                        Button declineButton = invitationsChunk.findViewById(R.id.declineButton);
+                        declineButton.setOnClickListener((View v) ->
+                                WebApi.startRequest(this, WebApi.API_BASE + "/games/" + gameId + "/decline",
+                                        Request.Method.POST, null, response -> connect(), error -> {
+                                    }));
+                    }
+                    if (currentState == PlayerStateID.ACCEPTED || currentState == PlayerStateID.PLAYING) {
+                        ongoingGroup.setVisibility(View.VISIBLE);
+                        View ongoingGamesChunk = getLayoutInflater().inflate(R.layout.chunk_ongoing_game, ongoingList,
+                                false);
+                        TextView emailLabel = ongoingGamesChunk.findViewById(R.id.ongoingEmails);
+                        emailLabel.setText("Created by " + owner);
+
+                        TextView detailLabel = ongoingGamesChunk.findViewById(R.id.ongoingDetails);
+                        detailLabel.setText(teamId + ", " + mode + " mode");
+                        ongoingList.addView(ongoingGamesChunk);
+
+                        Button enterButton = ongoingGamesChunk.findViewById(R.id.Enter);
+                    }
+                }
+            }
+        }
+
+
+        //View ongoingListChunk = getLayoutInflater().inflate(R.layout.chunk_ongoing_game, ongoingList, false);
+
+
+
     }
 
     /**
@@ -65,6 +170,7 @@ public final class MainActivity extends AppCompatActivity {
     private void enterGame(final String gameId) {
         // Launch GameActivity with the game ID in an intent extra
         // Do not finish - the user should be able to come back here
+
     }
 
 }
