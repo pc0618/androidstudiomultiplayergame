@@ -2,6 +2,8 @@ package edu.illinois.cs.cs125.fall2019.mp;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 //import android.view.View;
 import android.view.View;
@@ -133,6 +135,11 @@ public final class MainActivity extends AppCompatActivity {
 
                         parent.addView(invitationsChunk);
 
+                        Button acceptButton = invitationsChunk.findViewById(R.id.acceptButton);
+                        acceptButton.setOnClickListener((View v) ->
+                                WebApi.startRequest(this, WebApi.API_BASE + "/games/" + gameId + "/accept",
+                                        Request.Method.POST, null, response -> connect(), error -> {
+                                    }));
                         Button declineButton = invitationsChunk.findViewById(R.id.declineButton);
                         declineButton.setOnClickListener((View v) ->
                                 WebApi.startRequest(this, WebApi.API_BASE + "/games/" + gameId + "/decline",
@@ -151,6 +158,9 @@ public final class MainActivity extends AppCompatActivity {
                         ongoingList.addView(ongoingGamesChunk);
 
                         Button enterButton = ongoingGamesChunk.findViewById(R.id.Enter);
+                        Button leaveButton = ongoingGamesChunk.findViewById(R.id.Leave);
+                        leaveButton.setVisibility(View.GONE);
+                        enterButton.setOnClickListener(v -> enterGame(gameId));
                     }
                 }
             }
@@ -170,7 +180,9 @@ public final class MainActivity extends AppCompatActivity {
     private void enterGame(final String gameId) {
         // Launch GameActivity with the game ID in an intent extra
         // Do not finish - the user should be able to come back here
-
+        Intent launch = new Intent(this, GameActivity.class);
+        launch.putExtra("game", gameId);
+        startActivity(launch);
     }
 
 }
