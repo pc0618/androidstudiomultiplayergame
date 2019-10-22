@@ -86,10 +86,12 @@ public final class MainActivity extends AppCompatActivity {
         LinearLayout invitationGroup = findViewById(R.id.invitationsGroup);
         invitationGroup.setVisibility(View.GONE);
         LinearLayout parent = findViewById(R.id.invitationsList);
-
+        parent.removeAllViews();
         LinearLayout ongoingGroup = findViewById(R.id.ongoingGamesGroup);
         ongoingGroup.setVisibility(View.GONE);
         LinearLayout ongoingList = findViewById(R.id.ongoingGamesList);
+        ongoingList.removeAllViews();
+
 
 
         JsonArray games = result.get("games").getAsJsonArray();
@@ -147,9 +149,13 @@ public final class MainActivity extends AppCompatActivity {
                                     }));
                     }
                     if (currentState == PlayerStateID.ACCEPTED || currentState == PlayerStateID.PLAYING) {
-                        ongoingGroup.setVisibility(View.VISIBLE);
+
                         View ongoingGamesChunk = getLayoutInflater().inflate(R.layout.chunk_ongoing_game, ongoingList,
                                 false);
+                        Button leaveButton = ongoingGamesChunk.findViewById(R.id.Leave);
+                        if (FirebaseAuth.getInstance().getCurrentUser().getEmail().equals(owner)) {
+                            leaveButton.setVisibility(View.GONE);
+                        }
                         TextView emailLabel = ongoingGamesChunk.findViewById(R.id.ongoingEmails);
                         emailLabel.setText("Created by " + owner);
 
@@ -158,9 +164,15 @@ public final class MainActivity extends AppCompatActivity {
                         ongoingList.addView(ongoingGamesChunk);
 
                         Button enterButton = ongoingGamesChunk.findViewById(R.id.Enter);
-                        Button leaveButton = ongoingGamesChunk.findViewById(R.id.Leave);
-                        leaveButton.setVisibility(View.GONE);
                         enterButton.setOnClickListener(v -> enterGame(gameId));
+
+
+                        leaveButton.setOnClickListener((View v) ->
+                                WebApi.startRequest(this, WebApi.API_BASE + "/games/" + gameId + "/leave",
+                                        Request.Method.POST, null, response -> connect(), error -> {
+                                    }));
+                        ongoingGroup.setVisibility(View.VISIBLE);
+
                     }
                 }
             }
