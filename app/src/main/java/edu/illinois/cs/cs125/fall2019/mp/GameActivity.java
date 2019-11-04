@@ -217,8 +217,8 @@ public final class GameActivity extends AppCompatActivity {
             changeMarkerColor(targetLats[closestIndex], targetLngs[closestIndex], CAPTURED_MARKER_HUE);
 
             if (visitedCounter > 0) {
-                addLine(targetLats[path[visitedCounter - 1]], targetLngs[path[visitedCounter - 1]],
-                        targetLats[path[newClosest]], targetLngs[path[newClosest]], Color.GREEN);
+                addLine(new LatLng(targetLats[path[visitedCounter - 1]], targetLngs[path[visitedCounter - 1]]),
+                        new LatLng(targetLats[path[newClosest]], targetLngs[path[newClosest]]), Color.GREEN);
 
             }
         }
@@ -236,19 +236,13 @@ public final class GameActivity extends AppCompatActivity {
 
     /**
      * Adds a colored line to the Google map.
-     * @param startLat the latitude of one endpoint of the line
-     * @param startLng the longitude of that endpoint
-     * @param endLat the latitude of the other endpoint of the line
-     * @param endLng the longitude of that other endpoint
-     * @param color the color to fill the line with
+     * @param start The first LatLng co-ordinate of the line.
+     * @param end The second LatLng co-ordinate of the line.
+     * @param color The specified color.
      */
     @VisibleForTesting
-    public void addLine(final double startLat, final double startLng,
-                        final double endLat, final double endLng, final int color) {
+    public void addLine(final LatLng start, final LatLng end, final int color) {
         // Convert the loose coordinates to a Google Maps LatLng object
-        LatLng start = new LatLng(startLat, startLng);
-        LatLng end = new LatLng(endLat, endLng);
-
         // Configure and add a colored line
         final int lineThickness = 12;
         PolylineOptions fill = new PolylineOptions().add(start, end).color(color).width(lineThickness).zIndex(1);

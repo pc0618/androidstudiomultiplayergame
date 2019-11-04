@@ -1,5 +1,7 @@
 package edu.illinois.cs.cs125.fall2019.mp;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Holds methods for managing a path of target claims.
  * <p>
@@ -99,9 +101,10 @@ public class TargetVisitChecker {
             }
         }
         for (int i = 0; i < lastIndex; i++) {
-            if (LineCrossDetector.linesCross(latitudes[path[i]], longitudes[path[i]], latitudes[path[i + 1]],
-                    longitudes[path[i + 1]], latitudes[path[lastIndex]], longitudes[path[lastIndex]],
-                    latitudes[tryVisit], longitudes[tryVisit]) == true) {
+            if (LineCrossDetector.linesCross(new LatLng(latitudes[path[i]], longitudes[path[i]]),
+                    new LatLng(latitudes[path[i + 1]], longitudes[path[i + 1]]),
+                    new LatLng(latitudes[path[lastIndex]], longitudes[path[lastIndex]]),
+                    new LatLng(latitudes[tryVisit], longitudes[tryVisit])) == true) {
                 return false;
             }
         }
