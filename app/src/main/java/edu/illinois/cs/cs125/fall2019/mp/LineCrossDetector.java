@@ -4,11 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 /**
  * Holds a method to determine whether two lines cross.
- * <p>
- * The implementation given here works. You do not need to change the logic, but there are some style
- * problems that you do need to correct.
- * <p>
- * This file will be revisited in Checkpoint 3.
  */
 public class LineCrossDetector {
 
@@ -24,108 +19,94 @@ public class LineCrossDetector {
      * This ignores the roundness of the earth, but it's undetectable at reasonable scales of the game.
      * <p>
      * All parameters are assumed to be valid: both lines have positive length.
-     * @param firstStartLat the latitude of the start of one line
-     * @param firstStartLng the longitude of the start of that line
-     * @param firstEndLat the latitude of the end of that line
-     * @param firstEndLng the longitude of the end of that line
-     * @param secondStartLat the latitude of the start of another line
-     * @param secondStartLng the longitude of the start of that other line
-     * @param secondEndLat the latitude of the end of that other line
-     * @param secondEndLng the longitude of the end of that other line
+     * @param firstStart an endpoint of one line
+     * @param firstEnd the other endpoint of that line
+     * @param secondStart an endpoint of another line
+     * @param secondEnd the other endpoint of that other line
      * @return whether the two lines cross
      */
-    public static boolean linesCross(final double firstStartLat, final double firstStartLng,
-                                     final double firstEndLat, final double firstEndLng,
-                                     final double secondStartLat, final double secondStartLng,
-                                     final double secondEndLat, final double secondEndLng) {
-        if (LatLngUtils.same(firstStartLat, firstStartLng, secondStartLat, secondStartLng)
-                || LatLngUtils.same(firstStartLat, firstStartLng, secondEndLat, secondEndLng)
-                || LatLngUtils.same(firstEndLat, firstEndLng, secondStartLat, secondStartLng)
-                || LatLngUtils.same(firstEndLat, firstEndLng, secondEndLat, secondEndLng)) {
+    public static boolean linesCross(final LatLng firstStart, final LatLng firstEnd,
+                                     final LatLng secondStart, final LatLng secondEnd) {
+        if (LatLngUtils.same(firstStart, secondStart)
+                || LatLngUtils.same(firstStart, secondEnd)
+                || LatLngUtils.same(firstEnd, secondStart)
+                || LatLngUtils.same(firstEnd, secondEnd)) {
             // The lines are just sharing endpoints, not crossing each other
             return false;
         }
 
         // A line is vertical (purely north-south) if its longitude is constant
-        boolean firstVertical = LatLngUtils.same(firstStartLng, firstEndLng);
-        boolean secondVertical = LatLngUtils.same(secondStartLng, secondEndLng);
+        boolean firstVertical = LatLngUtils.same(firstStart.longitude, firstEnd.longitude);
+        boolean secondVertical = LatLngUtils.same(secondStart.longitude, secondEnd.longitude);
         if (firstVertical && secondVertical) {
             // They're parallel vertical lines
             return false;
         } else if (firstVertical) {
-            return lineCrossesVertical(firstStartLat, firstEndLat, firstStartLng,
-                    secondStartLat, secondStartLng, secondEndLat, secondEndLng);
+            return lineCrossesVertical(firstStart, firstEnd, secondStart, secondEnd);
         } else if (secondVertical) {
-            return lineCrossesVertical(secondStartLat, secondEndLat, secondStartLng,
-                    firstStartLat, firstStartLng, firstEndLat, firstEndLng);
+            return lineCrossesVertical(secondStart, secondEnd, firstStart, firstEnd);
         }
 
         // At this point, neither line is vertical
-        double firstSlope = lineSlope(firstStartLat, firstStartLng, firstEndLat, firstEndLng);
-        double secondSlope = lineSlope(secondStartLat, secondStartLng, secondEndLat, secondEndLng);
+        double firstSlope = lineSlope(firstStart, firstEnd);
+        double secondSlope = lineSlope(secondStart, secondEnd);
         if (LatLngUtils.same(firstSlope, secondSlope)) {
             // They're parallel
             return false;
         }
 
         // At this point, the lines are non-parallel (would intersect if infinitely extended)
-        double firstIntercept = firstStartLat - firstSlope * firstStartLng;
-        double secondIntercept = secondStartLat - secondSlope * secondStartLng;
+        double firstIntercept = firstStart.latitude - firstSlope * firstStart.longitude;
+        double secondIntercept = secondStart.latitude - secondSlope * secondStart.longitude;
         double intersectionX = -(firstIntercept - secondIntercept) / (firstSlope - secondSlope);
-        if (LatLngUtils.same(intersectionX, firstStartLng) || LatLngUtils.same(intersectionX, firstEndLng)
-                || LatLngUtils.same(intersectionX, secondStartLng) || LatLngUtils.same(intersectionX, secondEndLng)) {
+        if (LatLngUtils.same(intersectionX, firstStart.longitude)
+                || LatLngUtils.same(intersectionX, firstEnd.longitude)
+                || LatLngUtils.same(intersectionX, secondStart.longitude)
+                || LatLngUtils.same(intersectionX, secondEnd.longitude)) {
             // Endpoint of one line is in the middle of the other line
             return true;
         }
-        boolean onFirst = intersectionX > Math.min(firstStartLng, firstEndLng)
-                && intersectionX < Math.max(firstStartLng, firstEndLng);
-        boolean onSecond = intersectionX > Math.min(secondStartLng, secondEndLng)
-                && intersectionX < Math.max(secondStartLng, secondEndLng);
+        boolean onFirst = intersectionX > Math.min(firstStart.longitude, firstEnd.longitude)
+                && intersectionX < Math.max(firstStart.longitude, firstEnd.longitude);
+        boolean onSecond = intersectionX > Math.min(secondStart.longitude, secondEnd.longitude)
+                && intersectionX < Math.max(secondStart.longitude, secondEnd.longitude);
         return onFirst && onSecond;
     }
 
     /**
      * Determines if a non-vertical line crosses a vertical line.
-     * @param verticalStartLat the latitude of one endpoint of the vertical line
-     * @param verticalEndLat the latitude of the other endpoint of the vertical line
-     * @param verticalLng the longitude of the vertical line
-     * @param lineStartLat the latitude of one endpoint of the non-vertical line
-     * @param lineStartLng the longitude of that endpoint
-     * @param lineEndLat the latitude of the other endpoint of the line
-     * @param lineEndLng the longitude of that other endpoin
+     * @param verticalStart one endpoint of the vertical line
+     * @param verticalEnd the other endpoint of the vertical line
+     * @param lineStart one endpoint of the non-vertical line
+     * @param lineEnd the other endpoint of the non-vertical line line
      * @return whether the lines cross
      */
-    private static boolean lineCrossesVertical(final double verticalStartLat, final double verticalEndLat,
-                                               final double verticalLng,
-                                               final double lineStartLat, final double lineStartLng,
-                                               final double lineEndLat, final double lineEndLng) {
-        if (Math.max(lineStartLng, lineEndLng) < verticalLng
-                || Math.min(lineStartLng, lineEndLng) > verticalLng) {
+    private static boolean lineCrossesVertical(final LatLng verticalStart, final LatLng verticalEnd,
+                                               final LatLng lineStart, final LatLng lineEnd) {
+        if (Math.max(lineStart.longitude, lineEnd.longitude) < verticalStart.longitude
+                || Math.min(lineStart.longitude, lineEnd.longitude) > verticalStart.longitude) {
             // The non-vertical line is completely off to the side of the vertical line
             return false;
         }
-        double slope = lineSlope(lineStartLat, lineStartLng, lineEndLat, lineEndLng);
-        double yAtVert = slope * (verticalLng - lineStartLng) + lineStartLat;
-        if (LatLngUtils.same(yAtVert, verticalStartLat) || LatLngUtils.same(yAtVert, verticalEndLat)) {
+        double slope = lineSlope(lineStart, lineEnd);
+        double yAtVert = slope * (verticalStart.longitude - lineStart.longitude) + lineStart.latitude;
+        if (LatLngUtils.same(yAtVert, verticalStart.latitude) || LatLngUtils.same(yAtVert, verticalEnd.latitude)) {
             // Ends on the middle of the non-vertical line
             return true;
         }
         // See if the intersection of the lines is between the endpoints of the vertical line segment
-        return yAtVert > Math.min(verticalStartLat, verticalEndLat)
-                && yAtVert < Math.max(verticalStartLat, verticalEndLat);
+        return yAtVert > Math.min(verticalStart.latitude, verticalEnd.latitude)
+                && yAtVert < Math.max(verticalStart.latitude, verticalEnd.latitude);
     }
 
     /**
      * Determines the slope of a non-vertical line.
-     * @param startLat the latitude of one endpoint of the line
-     * @param startLng the longitude of that endpoint
-     * @param endLat the latitude of the other endpoint of the line
-     * @param endLng the longitude of that other endpoint
+     * @param start one endpoint of the line
+     * @param end the other endpoint of the line
      * @return the slope, treating longitude as X and latitude as Y
      */
-    private static double lineSlope(final double startLat, final double startLng,
-                                    final double endLat, final double endLng) {
-        return (endLat - startLat) / (endLng - startLng);
+    private static double lineSlope(final LatLng start, final LatLng end) {
+        return (end.latitude - start.latitude) / (end.longitude - start.longitude);
     }
 
 }
