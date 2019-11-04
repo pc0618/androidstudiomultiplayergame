@@ -1,5 +1,7 @@
 package edu.illinois.cs.cs125.fall2019.mp;
 
+import com.google.android.gms.maps.model.LatLng;
+
 /**
  * Holds a method to determine whether two lines cross.
  * <p>
