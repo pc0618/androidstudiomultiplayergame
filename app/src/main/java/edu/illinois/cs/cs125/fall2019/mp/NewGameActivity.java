@@ -18,6 +18,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public final class NewGameActivity extends AppCompatActivity {
             centerMap(areaMap);
         });
 
-        // Find the Google Maps component for the area map
+        // Find the Google Maps component for the target map
         SupportMapFragment targetMapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.targetsMap);
         // Start the process of getting a Google Maps object
@@ -73,8 +74,37 @@ public final class NewGameActivity extends AppCompatActivity {
 
             // Set the map variable so it can be used by other functions
             targetMap = newMap;
+            targetMap.setOnMapLongClickListener(location -> {
+                // Create a MarkerOptions object to specify where we want the marker
+                MarkerOptions options = new MarkerOptions().position(location);
+
+                // Add it to the map - Google Maps gives us the created Marker
+                Marker marker = targetMap.addMarker(options);
+                // Keep track of the new marker so changeMarkerColor can adjust it later
+                targets.add(marker);
+            });
             // Center it on campustown
             centerMap(targetMap);
+            targetMap.setOnMapLongClickListener(location -> {
+                // Create a MarkerOptions object to specify where we want the marker
+                MarkerOptions options = new MarkerOptions().position(location);
+
+                // Add it to the map - Google Maps gives us the created Marker
+                Marker marker = targetMap.addMarker(options);
+                // Keep track of the new marker so changeMarkerColor can adjust it later
+                targets.add(marker);
+            });
+
+            targetMap.setOnMarkerClickListener(clickedMarker -> {
+                // Code here runs whenever the user taps a marker.
+                // clickedMarker is the Marker object the user clicked.
+                // 1. Remove the marker from the map with its remove function.
+                // 2. Remove it from your targets list.
+                clickedMarker.remove();
+                targets.remove(clickedMarker);
+                return true; // This makes Google Maps not pan the map again
+            });
+
         });
 
         /*
