@@ -31,9 +31,9 @@ public final class NewGameActivity extends AppCompatActivity {
 
     /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
     private GoogleMap areaMap;
-    /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
+    /** The Google Maps view used to set the area for target mode. Null until getMapAsync finishes. */
     private GoogleMap targetMap;
-    /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
+    /** Stores the targets present on the Google Maps. */
     private List<Marker> targets = new ArrayList<>();
 
 
