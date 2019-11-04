@@ -17,6 +17,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents the game creation screen, where the user configures a new game.
@@ -27,6 +31,11 @@ public final class NewGameActivity extends AppCompatActivity {
 
     /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
     private GoogleMap areaMap;
+    /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
+    private GoogleMap targetMap;
+    /** The Google Maps view used to set the area for area mode. Null until getMapAsync finishes. */
+    private List<Marker> targets = new ArrayList<>();
+
 
     /**
      * Called by the Android system when the activity is created.
@@ -52,6 +61,20 @@ public final class NewGameActivity extends AppCompatActivity {
             areaMap = newMap;
             // Center it on campustown
             centerMap(areaMap);
+        });
+
+        // Find the Google Maps component for the area map
+        SupportMapFragment targetMapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.targetsMap);
+        // Start the process of getting a Google Maps object
+        targetMapFragment.getMapAsync(newMap -> {
+            // NONLINEAR CONTROL FLOW: Code in this block is called later, after onCreate ends
+            // It's a "callback" - it will be called eventually when the map is ready
+
+            // Set the map variable so it can be used by other functions
+            targetMap = newMap;
+            // Center it on campustown
+            centerMap(targetMap);
         });
 
         /*

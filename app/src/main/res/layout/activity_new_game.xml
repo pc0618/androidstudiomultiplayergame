@@ -26,6 +26,12 @@
                 android:ems="10"
                 android:hint="Proximity Threshold"
                 android:inputType="number" />
+
+            <fragment
+                android:id="@+id/targetsMap"
+                class="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="300dp" />
         </LinearLayout>
 
         <LinearLayout
