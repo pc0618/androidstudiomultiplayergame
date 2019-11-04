@@ -95,5 +95,4 @@ public class Target {
     public int getTeam() {
         return targetTeamID;
     }
-
 }
