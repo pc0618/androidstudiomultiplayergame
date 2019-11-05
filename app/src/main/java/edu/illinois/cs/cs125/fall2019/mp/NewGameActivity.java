@@ -2,14 +2,19 @@ package edu.illinois.cs.cs125.fall2019.mp;
 
 import android.content.Intent;
 import android.graphics.Point;
+
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.TextView;
 //import android.widget.RadioButton;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -19,6 +24,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +43,8 @@ public final class NewGameActivity extends AppCompatActivity {
     private GoogleMap targetMap;
     /** Stores the targets present on the Google Maps. */
     private List<Marker> targets = new ArrayList<>();
+    /** Stores the players. */
+    private List<Invitee> invitees;
 
 
     /**
@@ -106,6 +115,18 @@ public final class NewGameActivity extends AppCompatActivity {
             });
 
         });
+        invitees = new ArrayList<>();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        invitees.add(new Invitee(currentUser.getEmail(), TeamID.OBSERVER));
+        updatePlayersUI();
+
+        Button addInvitee = findViewById(R.id.addInvitee);
+        addInvitee.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                addInvitee();
+            }
+        });
 
         /*
          * Setting an ID for a control in the UI designer produces a constant on R.id
@@ -157,6 +178,66 @@ public final class NewGameActivity extends AppCompatActivity {
 
 
 
+    }
+
+    /**
+     * Updates Player UI with information about new Invitees.
+     */
+    private void updatePlayersUI() {
+        LinearLayout playersList = findViewById(R.id.playersList);
+        playersList.removeAllViews();
+        if (invitees != null) {
+            for (Invitee i: invitees) {
+                View playersChunk = getLayoutInflater().inflate(R.layout.chunk_invitee, playersList, false);
+                TextView inviteeEmail = playersChunk.findViewById(R.id.inviteeEmail);
+                inviteeEmail.setText(i.getEmail());
+
+                Spinner inviteeTeam = playersChunk.findViewById(R.id.inviteeTeam);
+                Button removeButton = playersChunk.findViewById(R.id.removeInvitee);
+
+                inviteeTeam.setSelection(i.getTeamId());
+
+                inviteeTeam.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(final AdapterView<?> parent, final View view, final int position,
+                                               final long id) {
+                        i.setTeamId(position);
+                        updatePlayersUI();
+                    }
+
+                    @Override
+                    public void onNothingSelected(final AdapterView<?> parent) {
+
+                    }
+                });
+
+                if (i.getEmail().equals(FirebaseAuth.getInstance().getCurrentUser().getEmail())) {
+                    removeButton.setVisibility(View.GONE);
+                }
+                removeButton.setOnClickListener(unused -> {
+                    invitees.remove(i);
+                    updatePlayersUI();
+                });
+
+                playersList.addView(playersChunk);
+            }
+        }
+    }
+
+    /**
+     * Adds Invitees.
+     */
+
+    public void addInvitee() {
+        EditText newInviteeEmail = findViewById(R.id.newInviteeEmail);
+        String newInviteeEmailString = newInviteeEmail.getText().toString();
+
+        if ((newInviteeEmailString.isEmpty()) == false) {
+            Invitee newRole = new Invitee(newInviteeEmailString, TeamID.OBSERVER);
+            invitees.add(newRole);
+            newInviteeEmail.setText("");
+            updatePlayersUI();
+        }
     }
 
     /**

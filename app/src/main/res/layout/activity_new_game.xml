@@ -12,6 +12,28 @@
         android:layout_height="wrap_content"
         android:orientation="vertical" >
 
+        <Button
+            android:id="@+id/addInvitee"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Button" />
+
+        <EditText
+            android:id="@+id/newInviteeEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/playersList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/targetSettings"
             android:layout_width="match_parent"
