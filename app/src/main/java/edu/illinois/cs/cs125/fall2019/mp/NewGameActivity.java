@@ -15,8 +15,10 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 //import android.widget.RadioButton;
 
+import com.android.volley.Request;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -26,6 +28,8 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -145,6 +149,7 @@ public final class NewGameActivity extends AppCompatActivity {
          * be there for the signature to match.
          */
         createGame.setOnClickListener(unused -> createGameClicked());
+
         RadioGroup radio = findViewById(R.id.gameModeGroup);
         radio.setOnCheckedChangeListener((unused, checkedId) -> {
             if (checkedId == R.id.targetModeOption) {
@@ -273,38 +278,119 @@ public final class NewGameActivity extends AppCompatActivity {
     /**
      * Code to run when the Create Game button is clicked.
      */
+
+
     private void createGameClicked() {
-        // Set up an Intent that will launch GameActivity
         Intent intent = new Intent(this, GameActivity.class);
         RadioGroup radio = findViewById(R.id.gameModeGroup);
         EditText proximityThreshold = findViewById(R.id.proximityThreshold);
         EditText cellSize = findViewById(R.id.cellSize);
-        /*if (radio.getCheckedRadioButtonId() != -1 && Integer.parseInt(cellSize.getText().toString())
-                != 0 && Integer.parseInt(proximityThreshold.getText().toString()) != 0) {
-            //startActivity(intent);
-        }*/
+
+
+
         String gameMode = intent.getStringExtra("mode");
-        if (radio.getChildAt(0).getId() == R.id.targetModeOption) {
+        if (radio.getCheckedRadioButtonId() == R.id.targetModeOption) {
             //EditText proximityThreshold = findViewById(R.id.proximityThreshold);
             String text = proximityThreshold.getText().toString();
+            if (text == null || text.length() == 0) {
+                return;
+            }
             int threshold = Integer.parseInt(text);
             intent.putExtra("proximityThreshold", threshold);
-        } else if (radio.getChildAt(1).getId() == R.id.areaModeOption) {
+        } else if (radio.getCheckedRadioButtonId() == R.id.areaModeOption) {
             //EditText cellSize = findViewById(R.id.cellSize);
             String text = cellSize.getText().toString();
+            if (text == null || text.length() == 0) {
+                return;
+            }
             int size = Integer.parseInt(text);
             intent.putExtra("cellSize", size);
             LatLngBounds bounds = areaMap.getProjection().getVisibleRegion().latLngBounds;
-            intent.putExtra("areaNorth", bounds.northeast.longitude);
-            intent.putExtra("areaEast", bounds.northeast.latitude);
-            intent.putExtra("areaSouth", bounds.southwest.longitude);
-            intent.putExtra("areaWest", bounds.southwest.latitude);
+            intent.putExtra("areaNorth", bounds.northeast.latitude);
+            intent.putExtra("areaEast", bounds.northeast.longitude);
+            intent.putExtra("areaSouth", bounds.southwest.latitude);
+            intent.putExtra("areaWest", bounds.southwest.longitude);
         }
+
+        JsonObject game = new JsonObject();
+
+        if (radio.getCheckedRadioButtonId() == R.id.targetModeOption) {
+            //EditText proximityThreshold = findViewById(R.id.proximityThreshold);
+            String text = proximityThreshold.getText().toString();
+            if (text == null || text.length() == 0) {
+                return;
+            }
+            int threshold = Integer.parseInt(text);
+            game.addProperty("mode", "target");
+            game.addProperty("proximityThreshold", threshold);
+            JsonArray targetArray = new JsonArray();
+            for (Marker info: targets) {
+                JsonObject temp = new JsonObject();
+                temp.addProperty("latitude", info.getPosition().latitude);
+                temp.addProperty("longitude", info.getPosition().longitude);
+                targetArray.add(temp);
+            }
+            game.add("targets", targetArray);
+            JsonArray inviteesArray = new JsonArray();
+            for (Invitee info: invitees) {
+                JsonObject temp = new JsonObject();
+                temp.addProperty("email", info.getEmail());
+                temp.addProperty("team", info.getTeamId());
+                inviteesArray.add(temp);
+            }
+
+            game.add("invitees", inviteesArray);
+
+            WebApi.startRequest(this, WebApi.API_BASE + "/games/create", Request.Method.POST, game, response -> {
+                intent.putExtra("game", response.get("game").getAsString());
+                startActivity(intent);
+                finish();
+            }, error ->  {
+                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+                });
+
+        } else if (radio.getCheckedRadioButtonId() == R.id.areaModeOption) {
+            //EditText cellSize = findViewById(R.id.cellSize);
+            String text = cellSize.getText().toString();
+            if (text == null || text.length() == 0) {
+                return;
+            }
+            int size = Integer.parseInt(text);
+            game.addProperty("mode", "area");
+            game.addProperty("cellSize", size);
+            LatLngBounds bounds = areaMap.getProjection().getVisibleRegion().latLngBounds;
+            game.addProperty("areaNorth", bounds.northeast.latitude);
+            game.addProperty("areaEast", bounds.northeast.longitude);
+            game.addProperty("areaSouth", bounds.southwest.latitude);
+            game.addProperty("areaWest", bounds.southwest.longitude);
+
+            JsonArray inviteesArray = new JsonArray();
+            for (Invitee info: invitees) {
+                JsonObject temp = new JsonObject();
+                temp.addProperty("email", info.getEmail());
+                temp.addProperty("team", info.getTeamId());
+                inviteesArray.add(temp);
+            }
+            game.add("invitees", inviteesArray);
+
+
+            WebApi.startRequest(this, WebApi.API_BASE + "/games/create", Request.Method.POST, game, response -> {
+                intent.putExtra("game", response.get("game").getAsString());
+                startActivity(intent);
+                finish();
+            }, error ->  {
+                    Toast.makeText(this, error.getMessage(), Toast.LENGTH_LONG).show();
+                });
+
+        }
+    }
+
+
         //finish();
 
 
         // Complete this function so that it populates the Intent with the user's settings (using putExtra)
         // If the user has set all necessary settings, launch the GameActivity and finish this activity
-    }
-
 }
+
+
