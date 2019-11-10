@@ -35,10 +35,6 @@ public final class MainActivity extends AppCompatActivity {
         // Create the UI from a layout resource
         setContentView(R.layout.activity_main);
         Button createGame = findViewById(R.id.createGame);
-        //createGame.setOnClickListener(unused -> startActivity(new Intent(this,
-               //NewGameActivity.class)));
-
-
 
         // This activity doesn't do anything yet - it immediately launches the game activity
         // Work on it will start in Checkpoint 1
@@ -47,7 +43,6 @@ public final class MainActivity extends AppCompatActivity {
         // Here we create an Intent for launching GameActivity and act on it with startActivity
         // End this activity so that it's removed from the history
         // Otherwise pressing the back button in the game would come back to a blank screen here
-        //finish();
         connect();
     }
 
