@@ -79,7 +79,6 @@ public final class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         // Create the UI from the activity_game.xml layout file (in src/main/res/layout)
         setContentView(R.layout.activity_game);
-
         findViewById(R.id.pauseUnpauseGame).setOnClickListener(unused -> toggleGameRunning());
         findViewById(R.id.endGame).setOnClickListener(unused -> endGame());
 
