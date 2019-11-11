@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -290,6 +291,7 @@ public final class GameActivity extends AppCompatActivity {
                     // Show the game owner controls if and only if the user owns the game
                     findViewById(R.id.gameOwnerControls).setVisibility(View.VISIBLE);
                 }
+                updateGameState(message.get("state").getAsInt());
 
                 // 4.2: You need to fill this in to act on the game's current state
                 // Call the updateGameState helper function with the game state
@@ -306,6 +308,7 @@ public final class GameActivity extends AppCompatActivity {
             case "gameState":
                 // 4.7: If the game is over, show the winner in a dialog that finishes the activity when dismissed
                 // 4.2: Otherwise use the updateGameState helper function to display the state change
+                updateGameState(message.get("state").getAsInt());
                 break;
             default:
                 // 4.3: Process any other message as a gameplay update, using the game object
@@ -345,6 +348,15 @@ public final class GameActivity extends AppCompatActivity {
         // Change the text of the pauseUnpauseGame button and the gameState label
         // When the game is paused, the button should say Resume and the label should say Paused
         // When the game is running, the button should say Pause and the label should say Running
+        TextView gameStateText = findViewById(R.id.gameState);
+        Button pauseUnpauseGame = findViewById(R.id.pauseUnpauseGame);
+        if (newState == GameStateID.RUNNING) {
+            pauseUnpauseGame.setText("Pause");
+            gameStateText.setText("Running");
+        } else if (newState == GameStateID.PAUSED) {
+            pauseUnpauseGame.setText("Resume");
+            gameStateText.setText("Paused");
+        }
     }
 
     /**
