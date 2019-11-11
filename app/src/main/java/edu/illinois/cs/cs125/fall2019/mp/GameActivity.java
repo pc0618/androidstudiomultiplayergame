@@ -232,13 +232,24 @@ public final class GameActivity extends AppCompatActivity {
     private void updateLocation(final Location location) {
         // If the game object or websocket haven't been set yet, return (nothing can be done)
         // If the user is only an observer in the game, return (their movements don't matter)
+        if (webSocket == null || game == null) {
+            return;
+        } else if (game.getMyTeam() == TeamID.OBSERVER) {
+            return;
+        }
 
         // Notify the server of the movement - start by creating a Gson JSON object representing the message
         JsonObject locUpdate = new JsonObject();
+        locUpdate.addProperty("type", "locationUpdate");
+        locUpdate.addProperty("latitude", location.getLatitude());
+        locUpdate.addProperty("longitude", location.getLongitude());
         // You need to fill the object out with the properties of a location update
         // Once the object is ready, convert it to a JSON string and send it over the websocket
         webSocket.sendText(locUpdate.toString());
-
+        if (gameState == GameStateID.RUNNING) {
+            game.locationUpdated(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
+        updateScores();
         // Call the logic that updates gameplay based on the user's movements
     }
 
@@ -299,11 +310,16 @@ public final class GameActivity extends AppCompatActivity {
                 // 4.3: You need to fill this in to load the game progress into the game variable
                 // Initialize the game instance variable with an instance of the Game subclass appropriate for the mode
                 // Then you can uncomment the if statement below
-
+                if (message.get("mode").getAsString().equals("target")) {
+                    game = new TargetGame(myEmail, map, webSocket, message, this);
+                } else if (message.get("mode").getAsString().equals("area")) {
+                    game = new AreaGame(myEmail, map, webSocket, message, this);
+                }
                 // Observers don't need to have their location tracked
-                /*if (game.getMyTeam() == TeamID.OBSERVER && centeredMap) {
+                if (game.getMyTeam() == TeamID.OBSERVER && centeredMap) {
                     stopLocationWatching();
-                }*/
+                }
+                updateScores();
                 break;
             case "gameState":
                 // 4.7: If the game is over, show the winner in a dialog that finishes the activity when dismissed
@@ -312,6 +328,8 @@ public final class GameActivity extends AppCompatActivity {
                 break;
             default:
                 // 4.3: Process any other message as a gameplay update, using the game object
+                game.handleMessage(message, type);
+                updateScores();
         }
     }
 
