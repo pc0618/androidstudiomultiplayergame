@@ -17,7 +17,7 @@ import java.util.Map;
 /**
  * Represents a multiplayer game, providing or defining methods common to all game modes.
  * <p>
- * This is used starting in Checkpoint 4. It does not need to be modified until Checkpoint 5.
+ * This is used in Checkpoint 4. You do not need to modify it.
  */
 public abstract class Game {
 
@@ -65,6 +65,9 @@ public abstract class Game {
                     && player.has("lastLatitude")) {
                 updateOtherPlayerPosition(player);
             }
+        }
+        if (!playerTeams.containsKey(email)) {
+            throw new IllegalArgumentException("The user specified by setEmail is not in the game");
         }
     }
 
