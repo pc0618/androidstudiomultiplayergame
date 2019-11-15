@@ -134,7 +134,6 @@ public final class TargetGame extends Game {
             int playerTeam = message.get("team").getAsInt();
             targets.get(targetId).setTeam(playerTeam);
             extendPlayerPath(playerEmail, targetId, playerTeam);
-            JsonObject location = new JsonObject();
 
 
             // You need to use that information to update the game state and map
