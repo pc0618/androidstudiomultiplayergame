@@ -149,8 +149,6 @@ public final class AreaGame extends Game {
                             divider.getCellBounds(lastX, lastY).southwest).fillColor(colors[getMyTeam()]));
                     JsonObject obj = new JsonObject();
 
-
-                    System.out.println("here");
                     obj.addProperty("type", "cellCapture");
                     obj.addProperty("x", currentX);
                     obj.addProperty("y", currentY);
@@ -204,6 +202,14 @@ public final class AreaGame extends Game {
      */
     @Override
     public int getTeamScore(final int teamId) {
-        return 0;
+        int count = 0;
+        for (int i = 0; i < divider.getXCells(); i++) {
+            for (int j = 0; j < divider.getYCells(); j++) {
+                if (classCells[i][j] == teamId) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }

@@ -73,6 +73,16 @@ public final class TargetGame extends Game {
                 JsonObject target = t.getAsJsonObject();
                 String targetId = target.get("id").getAsString();
                 extendPlayerPath(playerEmail, targetId, player.get("team").getAsInt());
+
+//                if (player.get("team").getAsInt() == TeamID.TEAM_BLUE) {
+//                    blue++;
+//                } else if (player.get("team").getAsInt() == TeamID.TEAM_RED) {
+//                    red++;
+//                } else if (player.get("team").getAsInt() == TeamID.TEAM_GREEN) {
+//                    green++;
+//                } else if (player.get("team").getAsInt() == TeamID.TEAM_YELLOW) {
+//                    yellow++;
+//                }
             }
         }
     }
@@ -194,7 +204,6 @@ public final class TargetGame extends Game {
         update.addProperty("targetId", id);
         sendMessage(update.toString());
 
-
     }
 
     /**
@@ -252,6 +261,20 @@ public final class TargetGame extends Game {
     @Override
     public int getTeamScore(final int teamId) {
         // Find how many targets are currently owned by the specified team
-        return 0;
+        int count = 0;
+
+
+        for (Map.Entry<String, List<String>> entry : playerPaths.entrySet()) {
+            List<String> otherPath = entry.getValue();
+            for (int i = 0; i < otherPath.size(); i++) {
+                Target target = targets.get(otherPath.get(i));
+                if (teamId == target.getTeam()) {
+                    count++;
+                }
+            }
+        }
+        return count;
+
+
     }
 }

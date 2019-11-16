@@ -353,6 +353,7 @@ public final class GameActivity extends AppCompatActivity {
             () -> runOnUiThread(this::connectWebSocket),
             // When a new connection fails, display an error
             error -> runOnUiThread(() -> gameStateLabel.setText("Connection lost")));
+
     }
 
     /**
@@ -371,10 +372,13 @@ public final class GameActivity extends AppCompatActivity {
         if (newState == GameStateID.RUNNING) {
             pauseUnpauseGame.setText("Pause");
             gameStateText.setText("Running");
+            gameState = GameStateID.RUNNING;
         } else if (newState == GameStateID.PAUSED) {
             pauseUnpauseGame.setText("Resume");
             gameStateText.setText("Paused");
+            gameState = GameStateID.PAUSED;
         }
+
     }
 
     /**
@@ -420,6 +424,12 @@ public final class GameActivity extends AppCompatActivity {
         }
         String[] teamNames = getResources().getStringArray(R.array.team_choices);
         TextView scoresLabel = findViewById(R.id.gameScores);
+        String text = "";
+        text += "Red: " + game.getTeamScore(TeamID.TEAM_RED) + " Green: " + game.getTeamScore(TeamID.TEAM_GREEN)
+                + " Yellow: " + game.getTeamScore(TeamID.TEAM_YELLOW) + " Blue: " + game.getTeamScore(TeamID.TEAM_BLUE);
+
+        scoresLabel.setText(text);
+        //System.out.println(scoresLabel.getText().toString());
 
         // Get each team's score from the game and build a string showing all of them
         // Set the scores label's text to that string
