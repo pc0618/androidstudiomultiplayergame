@@ -377,6 +377,34 @@ public final class GameActivity extends AppCompatActivity {
             pauseUnpauseGame.setText("Resume");
             gameStateText.setText("Paused");
             gameState = GameStateID.PAUSED;
+        } else if (newState == GameStateID.ENDED) {
+            int red = game.getTeamScore(TeamID.TEAM_RED);
+            int green = game.getTeamScore(TeamID.TEAM_GREEN);
+            int yellow = game.getTeamScore(TeamID.TEAM_YELLOW);
+            int blue = game.getTeamScore(TeamID.TEAM_BLUE);
+            if (blue > yellow && blue > green && blue > red) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Blue wins!");
+                builder.setOnDismissListener(unused -> gameLifecycleControl("end"));
+                builder.create().show();
+            } else if (red > green && red > blue && red > yellow) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Red wins!");
+                builder.setOnDismissListener(unused -> gameLifecycleControl("end"));
+                builder.create().show();
+            } else if (yellow > blue && yellow > green && yellow > red) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Yellow wins!");
+                builder.setOnDismissListener(unused -> gameLifecycleControl("end"));
+                builder.create().show();
+            } else if (green > red && green > yellow && green > blue) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage("Green wins!");
+                builder.setOnDismissListener(unused -> gameLifecycleControl("end"));
+                builder.create().show();
+            }
+            finish();
+
         }
 
     }
@@ -422,7 +450,6 @@ public final class GameActivity extends AppCompatActivity {
         if (game == null) {
             return;
         }
-        String[] teamNames = getResources().getStringArray(R.array.team_choices);
         TextView scoresLabel = findViewById(R.id.gameScores);
         String text = "";
         text += "Red: " + game.getTeamScore(TeamID.TEAM_RED) + " Green: " + game.getTeamScore(TeamID.TEAM_GREEN)
